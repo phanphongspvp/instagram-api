@@ -11,4 +11,10 @@ export class AuthInput {
 
     @IsString()
     password: string;
+
+    @IsString()
+    avatar: string
+
+    @IsString()
+    logged: boolean;
 }

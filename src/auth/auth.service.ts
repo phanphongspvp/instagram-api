@@ -11,24 +11,49 @@ export class AuthService {
 
     private readonly saltRounds = 10;
 
-    async signup(auth: AuthInput): Promise<boolean> {
-        const { password, ...otherAuth } = auth;
-        const authHashPassword = await bcrypt.hash(password, this.saltRounds);
-        const authNew = await this.authModel.create({
-            password: authHashPassword,
-            ...otherAuth
-        });
-        if(authNew) return true;
-        return false;
+    async signup(auth: AuthInput): Promise<Object> {
+        try {
+            const { password, ...otherAuth } = auth;
+            const authHashPassword = await bcrypt.hash(password, this.saltRounds);
+            const authNew = await this.authModel.create({
+                password: authHashPassword,
+                ...otherAuth
+            });
+            if(authNew) {
+                return {
+                    name: authNew.name,
+                    username: authNew.username,
+                    avatar: authNew?.avatar,
+                    logged: true
+                }
+            } else {
+                return { logged: false }
+            }
+        } catch (error) {
+            console.error('Error in signup:', error);
+            throw error;
+        }
     }
 
-    async login(auth: AuthInput): Promise<boolean> {
-        const { username, password } = auth;
-        const authCheckUser = await this.authModel.findOne({ username });
-        if(authCheckUser) {
-            const comparePassword = await bcrypt.compare(password, authCheckUser.password);
-            if(comparePassword) return true;
-            else return false;
-        } else return false;
+    async login(auth: AuthInput): Promise<Object> {
+        try {
+            const { username, password } = auth;
+            const authCheckUser = await this.authModel.findOne({ username });
+            if(authCheckUser) {
+                const comparePassword = await bcrypt.compare(password, authCheckUser.password);
+                if(comparePassword) {
+                    return {
+                        name: authCheckUser.name,
+                        username: authCheckUser.username,
+                        avatar: authCheckUser.avatar,
+                        logged: true
+                    }
+                }
+                else return { logged: false };
+            } else return { logged: false };
+        } catch (error) {
+            console.error('Error in signup:', error);
+            throw error;
+        }
     }
 }
