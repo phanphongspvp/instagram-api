@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from './model/post.model';
 import { PostInput } from './dto/post.input';
+import { User } from 'src/users/model/user.model';
 
 @Injectable()
 export class PostsService {
-    constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
+    constructor(
+        @InjectModel(Post.name) private postModel: Model<Post>,
+        @InjectModel(User.name) private userModel: Model<User>
+    ) {}
 
     async findAll(): Promise<Post[]> {
         const posts = await this.postModel.find().exec();
@@ -15,21 +19,35 @@ export class PostsService {
 
     async findOne(id: string): Promise<Post> {
         const post = await this.postModel.findById(id).exec();
+        if(!post) {
+            throw new NotFoundException("User not found");
+        }
         return post;
     }
 
-    create(post: PostInput): Promise<Post> {
+    async create(post: PostInput, userId: string): Promise<Post> {
+        const user = await this.userModel.findById(userId).exec();
+        if(!user) {
+            throw new NotFoundException("User not found");
+        }
+        post.user = user;
         const postNew = new this.postModel(post);
         return postNew.save();
     }
 
     async update(id: string, post: PostInput): Promise<Post> {
         const postUpdate = await this.postModel.findByIdAndUpdate(id, post, { new: true });
+        if(!postUpdate) {
+            throw new NotFoundException("User not found");
+        }
         return postUpdate;
     }
 
     async delete(id: string): Promise<Post> {
         const post = await this.postModel.findByIdAndDelete(id);
+        if(!post) {
+            throw new NotFoundException("User not found");
+        }
         return post;
     }
 }

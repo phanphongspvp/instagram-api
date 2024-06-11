@@ -16,9 +16,9 @@ export class PostsController {
         return this.postService.findOne(id);
     }
 
-    @Post()
-    create(@Body() post: PostInput) {
-        return this.postService.create(post);
+    @Post(":id")
+    create(@Param("id") id: string, @Body() post: PostInput) {
+        return this.postService.create(post, id);
     }
 
     @Put(":id")

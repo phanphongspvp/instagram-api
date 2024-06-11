@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Schema as MongooseSchema } from "mongoose";
+import { Auth } from "src/auth/model/auth.model";
 
 export enum UserRole {
     ADMIN = "admin",
@@ -12,19 +13,16 @@ export class User extends Document {
     email: string;
 
     @Prop({ required: true })
-    password: string;
-
-    @Prop({ required: true })
     roles: UserRole;
-
-    @Prop({ required: true })
-    name: string;
 
     @Prop({ required: true })
     phone: number
 
     @Prop({ required: true })
     address: string;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Auth' })
+    auth: Auth
 
     @Prop()
     createdAt?: Date

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Schema as MongooseSchema } from "mongoose";
+import { User } from "src/users/model/user.model";
 
 @Schema({ timestamps: true })
 export class Post extends Document {
@@ -7,19 +8,22 @@ export class Post extends Document {
     title: string;
 
     @Prop({ required: true })
-    content: string
+    content: string;
 
     @Prop()
-    image: string
+    image: string[];
 
     @Prop()
-    audio: string
+    audio: string[];
 
     @Prop()
-    like: number
+    like: number;
 
     @Prop()
-    comment: string
+    comment: string[];
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+    user: User
 
     @Prop()
     createdAt?: Date;

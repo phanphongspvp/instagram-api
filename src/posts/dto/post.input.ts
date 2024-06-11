@@ -1,4 +1,6 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsNotEmpty, IsString, ValidateNested } from "class-validator";
+import { UserInput } from "src/users/dto/user.input";
 
 export class PostInput {
     @IsString()
@@ -10,11 +12,11 @@ export class PostInput {
 
     @IsNotEmpty()
     @IsString()
-    image: string
+    image: string[]
 
     @IsNotEmpty()
     @IsString()
-    audio: string
+    audio: string[]
 
     @IsNotEmpty()
     @IsString()
@@ -22,5 +24,10 @@ export class PostInput {
 
     @IsNotEmpty()
     @IsString()
-    comment: string
+    comment: string[]
+
+    @IsNotEmpty()
+    @ValidateNested()
+    @Type(() => UserInput)
+    user: UserInput
 }

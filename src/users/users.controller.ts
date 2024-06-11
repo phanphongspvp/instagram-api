@@ -17,9 +17,9 @@ export class UsersController {
         return this.userService.findOne(id);
     }
 
-    @Post()
-    create(@Body() user: UserInput) {
-        return this.userService.create(user);
+    @Post(":id")
+    create(@Param("id") id: string, @Body() user: UserInput) {
+        return this.userService.create(user, id);
     }
 
     @Put(":id")
