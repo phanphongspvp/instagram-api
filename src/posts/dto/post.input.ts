@@ -1,28 +1,24 @@
 import { Type } from "class-transformer";
-import { IsNotEmpty, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsNotEmpty, IsString, ValidateNested } from "class-validator";
+import { LikeInput } from "src/like/dto/like.input";
 import { UserInput } from "src/users/dto/user.input";
 
 export class PostInput {
-    @IsString()
-    title: string
-
     @IsNotEmpty()
     @IsString()
     content: string
 
-    @IsNotEmpty()
     @IsString()
     image: string[]
 
-    @IsNotEmpty()
     @IsString()
     audio: string[]
 
-    @IsNotEmpty()
-    @IsString()
-    like: number
+    @IsArray()
+    @ValidateNested()
+    @Type(() => LikeInput)
+    like: LikeInput
 
-    @IsNotEmpty()
     @IsString()
     comment: string[]
 

@@ -3,37 +3,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './model/user.model';
 import { Model } from 'mongoose';
 import { UserInput } from './dto/user.input';
-import * as bcrypt from "bcrypt";
-import { Auth } from 'src/auth/model/auth.model';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(Auth.name) private authModel: Model<Auth>
-    ) {}
+    constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
     async findAll(): Promise<User[]> {
-        const users = await this.userModel.find().populate("auth").exec();
+        const users = await this.userModel.find().exec();
         return users;
     }
 
      async findOne(id: string): Promise<User> {
-        const user = await this.userModel.findById(id).populate("auth").exec();
+        const user = await this.userModel.findById(id).exec();
         if(!user) {
             throw new NotFoundException("User not found");
         }
         return user;
-    }
-
-    async create(user: UserInput, authId: string): Promise<User> {
-        const auth = await this.authModel.findById(authId).exec();
-        if(!auth) {
-            throw new NotFoundException("User not found");
-        }
-        user.auth = auth;
-        const newUser = new this.userModel(user);
-        return newUser.save();
     }
 
     async update(id: string, user: UserInput): Promise<User> {

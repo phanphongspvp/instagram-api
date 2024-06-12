@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Auth } from './model/auth.model';
 import { Model } from 'mongoose';
-import { AuthInput } from './dto/auth.input';
+import { User } from 'src/users/model/user.model';
+import { UserInput } from 'src/users/dto/user.input';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-    constructor(@InjectModel(Auth.name) private authModel: Model<Auth>) {}
+    constructor(@InjectModel(User.name) private authModel: Model<User>) {}
 
     private readonly saltRounds = 10;
 
-    async signup(auth: AuthInput): Promise<Object> {
+    async signup(auth: UserInput): Promise<Object> {
         try {
             const { password, ...otherAuth } = auth;
             const authHashPassword = await bcrypt.hash(password, this.saltRounds);
@@ -21,6 +21,7 @@ export class AuthService {
             });
             if(authNew) {
                 return {
+                    id: authNew._id,
                     name: authNew.name,
                     username: authNew.username,
                     avatar: authNew?.avatar,
@@ -35,7 +36,7 @@ export class AuthService {
         }
     }
 
-    async login(auth: AuthInput): Promise<Object> {
+    async login(auth: UserInput): Promise<Object> {
         try {
             const { username, password } = auth;
             const authCheckUser = await this.authModel.findOne({ username });
@@ -43,6 +44,7 @@ export class AuthService {
                 const comparePassword = await bcrypt.compare(password, authCheckUser.password);
                 if(comparePassword) {
                     return {
+                        id: authCheckUser._id,
                         name: authCheckUser.name,
                         username: authCheckUser.username,
                         avatar: authCheckUser.avatar,

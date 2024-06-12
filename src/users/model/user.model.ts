@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Schema as MongooseSchema } from "mongoose";
-import { Auth } from "src/auth/model/auth.model";
 
 export enum UserRole {
     ADMIN = "admin",
@@ -10,19 +9,31 @@ export enum UserRole {
 @Schema({ timestamps: true })
 export class User extends Document {
     @Prop({ required: true })
+    username: string;
+
+    @Prop({ required: true })
+    password: string;
+
+    @Prop({ default: 'customer' })
+    roles: UserRole;
+
+    @Prop()
     email: string;
 
     @Prop({ required: true })
-    roles: UserRole;
+    name: string;
 
-    @Prop({ required: true })
-    phone: number
+    @Prop({ default: "https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?w=300&ssl=1" })
+    avatar: string;
 
-    @Prop({ required: true })
+    @Prop()
     address: string;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Auth' })
-    auth: Auth
+    @Prop()
+    phone: number
+
+    @Prop({ default: true })
+    logged: boolean;
 
     @Prop()
     createdAt?: Date
