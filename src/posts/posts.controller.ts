@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { PostInput } from './dto/post.input';
 import { PostsService } from './posts.service';
+import { ObjectId } from 'mongoose';
 
 @Controller('posts')
 export class PostsController {
@@ -12,8 +13,8 @@ export class PostsController {
     }
 
     @Get(":id")
-    findOne(@Param("id") id: string) {
-        return this.postService.findOne(id);
+    findByUserId(@Param("id") id: string) {
+        return this.postService.findByUserId(id);
     }
 
     @Post(":id")
@@ -29,5 +30,15 @@ export class PostsController {
     @Delete(":id")
     delete(@Param("id") id: string) {
         return this.postService.delete(id);
+    }
+
+    @Post("likes/:postId/:userId")
+    like(@Param("postId") postId: string, @Param("userId") userId: ObjectId) {
+        return this.postService.like(postId, userId);
+    }
+
+    @Post("unlikes/:postId/:userId")
+    unlike(@Param("postId") postId: string, @Param("userId") userId: ObjectId) {
+        return this.postService.unlike(postId, userId);
     }
 }
