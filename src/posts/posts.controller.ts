@@ -12,9 +12,14 @@ export class PostsController {
         return this.postService.findAll();
     }
 
-    @Get(":id")
+    @Get("/user/:id")
     findByUserId(@Param("id") id: string) {
         return this.postService.findByUserId(id);
+    }
+
+    @Get(":id")
+    findById(@Param("id") id: string) {
+        return this.postService.findById(id);
     }
 
     @Post(":id")

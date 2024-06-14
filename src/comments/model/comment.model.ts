@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Schema as MongooseSchema } from "mongoose";
 import { Post } from "src/posts/model/post.model";
-import { User } from "src/users/model/user.model";
 
 @Schema({ _id: false })
 class EmbeddedUser {

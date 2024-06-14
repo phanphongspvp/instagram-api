@@ -22,6 +22,11 @@ export class PostsService {
     return posts;
   }
 
+  async findById(id: string): Promise<Post> {
+    const post = await this.postModel.findById(id).exec();
+    return post;
+  }
+
   async create(post: PostInput, userId: string): Promise<Post> {
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
