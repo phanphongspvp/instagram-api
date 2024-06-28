@@ -1,15 +1,17 @@
+import { UsersService } from 'src/users/users.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import { Post } from './model/post.model';
 import { PostInput } from './dto/post.input';
-import { User } from 'src/users/model/user.model';
+import { LikesService } from 'src/likes/likes.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Post.name) private postModel: Model<Post>,
-    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly usersService: UsersService,
+    // private readonly likesService: LikesService,
   ) {}
 
   async findAll(): Promise<Post[]> {
@@ -28,13 +30,10 @@ export class PostsService {
   }
 
   async create(post: PostInput, userId: string): Promise<Post> {
-    const user = await this.userModel.findById(userId).exec();
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    post.user = user;
-    const postNew = new this.postModel(post);
-    return postNew.save();
+    const user = await this.usersService.findById(userId);
+    post.user = user?._id.toString();
+    const postNew = await this.postModel.create(post);
+    return postNew;
   }
 
   async update(id: string, post: PostInput): Promise<Post> {
@@ -42,7 +41,7 @@ export class PostsService {
       new: true,
     });
     if (!postUpdate) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Post not found');
     }
     return postUpdate;
   }
@@ -55,27 +54,23 @@ export class PostsService {
     return post;
   }
 
-  async like(postId: string, userId: ObjectId): Promise<Post | null> {
-    const post = await this.postModel.findById(postId).exec();
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
+  // async like(userId: string, postId: string) {
+  //   const newLike = await this.likesService.create(userId, postId);
+  //   const post = new this.postModel;
+  //   const likeId: ObjectId = newLike?._id as ObjectId;
+  //   if(!post.likes.includes(likeId)) {
+  //     post.likes.push(likeId);
+  //     await post.save();
+  //   }
+  // }
 
-    if (!post.likes.includes(userId)) {
-      post.likes.push(userId);
-      post.save();
-    }
-    return post;
-  }
-
-  async unlike(postId: string, userId: ObjectId): Promise<Post | null> {
-    const post = await this.postModel.findById(postId).exec();
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-    post.likes = post.likes.filter((id) => id != userId);
-    await post.save();
-
-    return post;
-  }
+  // async unlike(userId: string, postId: string) {
+  //   const newLike = await this.likesService.findOne(userId, postId);
+  //   const post = new this.postModel;
+  //   const likeId: ObjectId = newLike?._id as ObjectId;
+  //   if(post.likes.includes(likeId)) {
+  //     post.likes = post.likes.filter(id => id != likeId);
+  //     await post.save();
+  //   }
+  // }
 }

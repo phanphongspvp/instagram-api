@@ -1,20 +1,23 @@
-import { Type } from "class-transformer";
-import { IsNotEmpty, IsString, ValidateNested } from "class-validator";
-import { UserInput } from "src/users/dto/user.input";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class PostInput {
     @IsNotEmpty()
     @IsString()
-    content: string
+    content: string;
 
     @IsString()
-    imageUrls: string[]
+    imageUrls: string[];
 
     @IsString()
-    audio: string[]
+    audio: string;
+
+    @IsString()
+    likes: string[];
+
+    @IsString()
+    comments: string[];
 
     @IsNotEmpty()
-    @ValidateNested()
-    @Type(() => UserInput)
-    user: UserInput
+    @IsString()
+    user: null | string;
 }

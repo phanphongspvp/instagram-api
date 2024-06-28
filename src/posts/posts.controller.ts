@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { PostInput } from './dto/post.input';
 import { PostsService } from './posts.service';
 import { ObjectId } from 'mongoose';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('posts')
+// @UseGuards(AuthGuard("jwt"))
 export class PostsController {
     constructor(private readonly postService: PostsService) {}
 
@@ -37,13 +39,13 @@ export class PostsController {
         return this.postService.delete(id);
     }
 
-    @Post("likes/:postId/:userId")
-    like(@Param("postId") postId: string, @Param("userId") userId: ObjectId) {
-        return this.postService.like(postId, userId);
-    }
+    // @Post("likes/user/:userId/post/:postId")
+    // like(@Param("userId") userId: string, @Param("postId") postId: string) {
+    //     return this.postService.like(userId, postId);
+    // }
 
-    @Post("unlikes/:postId/:userId")
-    unlike(@Param("postId") postId: string, @Param("userId") userId: ObjectId) {
-        return this.postService.unlike(postId, userId);
-    }
+    // @Post("unlikes/user/:userId/post/:postId")
+    // unlike(@Param("userId") userId: string, @Param("postId") postId: string) {
+    //     return this.postService.unlike(userId, postId);
+    // }
 }

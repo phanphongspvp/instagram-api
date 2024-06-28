@@ -1,18 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Schema as MongooseSchema } from "mongoose";
-import { Post } from "src/posts/model/post.model";
-
-@Schema({ _id: false })
-class EmbeddedUser {
-    @Prop({ required: true })
-    username: string;
-
-    @Prop({ required: true })
-    name: string;
-
-    @Prop({ required: true })
-    avatar: string;
-}
 
 @Schema({ timestamps: true })
 export class Comment extends Document {
@@ -20,10 +7,10 @@ export class Comment extends Document {
     comment: string;
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Post', required: true })
-    post: Post
+    postId: MongooseSchema.Types.ObjectId;
 
-    @Prop({ type: EmbeddedUser, ref: 'User', required: true })
-    user: EmbeddedUser
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+    userId: MongooseSchema.Types.ObjectId;
 
     @Prop()
     createdAt?: Date;

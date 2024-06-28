@@ -1,20 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { User } from './model/user.model';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserInput } from './dto/user.input';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/jwtStrategy/jwt.protected.roles';
 
 @Controller('users')
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
     constructor(private readonly userService: UsersService) {}
 
     @Get()
+    @UseGuards(RolesGuard)
     findAll() {
         return this.userService.findAll();
     }
 
     @Get(":id")
     findOne(@Param("id") id: string) {
-        return this.userService.findOne(id);
+        return this.userService.findById(id);
     }
 
     @Put(":id")

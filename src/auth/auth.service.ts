@@ -1,34 +1,33 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from 'src/users/model/user.model';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserInput } from 'src/users/dto/user.input';
+import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwtStrategy/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
-    constructor(@InjectModel(User.name) private authModel: Model<User>) {}
-
-    private readonly saltRounds = 10;
+    constructor(
+        private readonly userService: UsersService,
+        private readonly jwtService: JwtService
+    ) {}
 
     async signup(auth: UserInput): Promise<Object> {
         try {
-            const { password, ...otherAuth } = auth;
-            const authHashPassword = await bcrypt.hash(password, this.saltRounds);
-            const authNew = await this.authModel.create({
-                password: authHashPassword,
-                ...otherAuth
-            });
+            const authNew = await this.userService.create(auth);
             if(authNew) {
-                return {
-                    id: authNew._id,
+                const payload: JwtPayload = {
+                    userId: authNew.id,
                     name: authNew.name,
                     username: authNew.username,
-                    avatar: authNew?.avatar,
-                    logged: true
-                }
+                    roles: authNew.roles,
+                    avatar: authNew.avatar,
+                    logged: authNew.logged
+                };
+                const accessToken = this.jwtService.sign(payload);
+                return { accessToken };
             } else {
-                return { logged: false }
+                throw new UnauthorizedException("Error sign up credentialed");
             }
         } catch (error) {
             console.error('Error in signup:', error);
@@ -39,22 +38,29 @@ export class AuthService {
     async login(auth: UserInput): Promise<Object> {
         try {
             const { username, password } = auth;
-            const authCheckUser = await this.authModel.findOne({ username });
+            const authCheckUser = await this.userService.findOne({ username });
             if(authCheckUser) {
                 const comparePassword = await bcrypt.compare(password, authCheckUser.password);
                 if(comparePassword) {
-                    return {
-                        id: authCheckUser._id,
+                    const payload: JwtPayload = {
+                        userId: authCheckUser.id,
                         name: authCheckUser.name,
-                        username: authCheckUser.username,
+                        username: username,
+                        roles: authCheckUser.roles,
                         avatar: authCheckUser.avatar,
-                        logged: true
-                    }
+                        logged: authCheckUser.logged
+                    };
+                    const accessToken = this.jwtService.sign(payload);
+                    return { accessToken };
                 }
-                else return { logged: false };
-            } else return { logged: false };
+                else {
+                    throw new UnauthorizedException("Please check your login credentials");
+                }
+            } else {
+                throw new UnauthorizedException("Please check your login credentials");
+            };
         } catch (error) {
-            console.error('Error in signup:', error);
+            console.error('Error in sign in:', error);
             throw error;
         }
     }
